@@ -11,6 +11,11 @@ double euclidean_distance( const std::vector<double>& a, const std::vector<doubl
     return sqrt(d);
 }
 
+double magnitude( const std::vector<double>& a )
+{
+    return euclidean_distance(a,{0.,0.,0.});
+}
+
 std::vector<double> operator-(const std::vector<double>& a, const std::vector<double>& b)
 {
     std::vector<double> result(a.size());
@@ -53,18 +58,31 @@ double f(const std::vector<double>& x)
 }
 
 template < typename FUN >
-std::vector<double> dumb_gradient_descent(const std::vector<double>& initial_estimate, const FUN& fun, const double& lambda, const double& delta, const double& epsilon)
+std::vector<double> dumb_gradient_descent(const std::vector<double>& initial_estimate, const FUN& fun, const double& initial_lambda, const double& delta, const double& epsilon)
 {
+    double lambda(initial_lambda);
     std::vector<double> theta_new;
     std::vector<double> theta_old( initial_estimate );
     std::cout << "v=[" << theta_old << "\n";
     bool stop = false;
+    bool decreasing;
+    double g;
     do {
-        theta_new = theta_old - lambda * gradient(fun, theta_old, delta);
+        auto g = gradient(fun, theta_old, delta);
+        theta_new = theta_old - (lambda / magnitude(g)) * g;
+        if ( fun(theta_new) < fun(theta_old) ) {
+            lambda *= 1.2;
+            decreasing = true;
+        } else {
+            lambda *= .5;
+            decreasing = false;
+        }
         if ( euclidean_distance(theta_new, theta_old) < epsilon ) {
             stop = true;
         }
-        theta_old = theta_new;
+        if ( decreasing ) {
+            theta_old = theta_new;
+        }
         std::cout << theta_old << "\n";
     } while (!stop);
     return theta_old;
@@ -218,10 +236,10 @@ public:
 
 int main(int, char**)
 {
-    std::vector< double > theta_old = {.9, 1.9, 2.9};
-    double epsilon = .01;
-    double lambda = .001;
-    double delta = lambda / 10;
+    std::vector< double > theta_old = {.5, .5, .5};
+    double epsilon = .0001;
+    double lambda = 10;
+    double delta = .0001;
 
     minitest();
 
