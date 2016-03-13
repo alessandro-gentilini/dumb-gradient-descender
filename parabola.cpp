@@ -13,7 +13,7 @@ double euclidean_distance( const std::vector<double>& a, const std::vector<doubl
 
 double magnitude( const std::vector<double>& a )
 {
-    return euclidean_distance(a,{0.,0.,0.});
+    return euclidean_distance(a, {0., 0., 0.});
 }
 
 std::vector<double> operator-(const std::vector<double>& a, const std::vector<double>& b)
@@ -58,33 +58,36 @@ double f(const std::vector<double>& x)
 }
 
 template < typename FUN >
-std::vector<double> dumb_gradient_descent(const std::vector<double>& initial_estimate, const FUN& fun, const double& initial_lambda, const double& delta, const double& epsilon)
+std::vector<double> dumb_gradient_descent(const std::vector<double>& initial_estimate, const FUN& fun, const double& initial_lambda, const double& delta, const double& epsilon, const char* name)
 {
     double lambda(initial_lambda);
     std::vector<double> theta_new;
     std::vector<double> theta_old( initial_estimate );
-    std::cout << "v=[" << theta_old << "\n";
+    std::cout << name << "=[" << theta_old << " " << fun(theta_old) << "\n";
     bool stop = false;
     bool decreasing;
     double g;
     do {
         auto g = gradient(fun, theta_old, delta);
         theta_new = theta_old - (lambda / magnitude(g)) * g;
+        theta_new[1] = .5;
         if ( fun(theta_new) < fun(theta_old) ) {
-            lambda *= 1.2;
+            lambda *= 2;
             decreasing = true;
         } else {
             lambda *= .5;
             decreasing = false;
         }
-        if ( euclidean_distance(theta_new, theta_old) < epsilon ) {
+        //if ( euclidean_distance(theta_new, theta_old) < epsilon ) {
+        if ( magnitude(g) < epsilon ) {
             stop = true;
         }
         if ( decreasing ) {
             theta_old = theta_new;
         }
-        std::cout << theta_old << "\n";
+        std::cout << theta_old << " " << fun(theta_old) << "\n";
     } while (!stop);
+    std::cout << "];";
     return theta_old;
 }
 
@@ -236,8 +239,8 @@ public:
 
 int main(int, char**)
 {
-    std::vector< double > theta_old = {.5, .5, .5};
-    double epsilon = .0001;
+    std::vector< double > theta_old = { 1, 2, 3};
+    double epsilon = .00001;
     double lambda = 10;
     double delta = .0001;
 
@@ -245,9 +248,9 @@ int main(int, char**)
 
     //dumb_gradient_descent(theta_old,f,lambda,delta,epsilon);
 
-    double a = 1;
-    double b = 2;
-    double c = 3;
+    double a = .5;
+    double b = .5;
+    double c = .5;
 
     std::vector<double> x, y;
 
@@ -258,7 +261,54 @@ int main(int, char**)
 
 
     Cost cost(x, y);
-    dumb_gradient_descent(theta_old, cost, lambda, delta, epsilon);
+
+    std::vector< double > aa;
+    std::vector< double > bb;
+    std::vector< double > cc;
+
+    size_t N = 1000;
+    double step = 6. / N;
+    for ( size_t i = 0; i < N; i++) {
+        aa.push_back(-3 + i * step);
+    }
+
+    bb = aa;
+    cc = aa;
+
+
+    std::cout << "s=[";
+    for ( size_t r = 0; r < aa.size(); r++ ) {
+//        for ( size_t c = 0; c < bb.size(); c++ ) {
+        for ( size_t p = 0; p < cc.size(); p++ ) {
+            std::cout << aa[r] << " " << cc[p] << " " << cost({aa[r], .5, cc[p]}) << "\n";
+        }
+        //}
+        std::cout << "\n";
+    }
+    std::cout << "];\n";
+
+    std::string n1("v1");
+    dumb_gradient_descent(theta_old, cost, lambda, delta, epsilon, n1.c_str());
+
+    theta_old = { 1, 2, 1};
+    std::string n2("v2");
+    dumb_gradient_descent(theta_old, cost, lambda, delta, epsilon, n2.c_str());
+
+    std::cout << "Z = reshape(s(:,3),[]," << N << ");\n";
+
+    std::cout << "X = reshape(s(:,1),[]," << N << ");\n";
+
+    std::cout << "Y = reshape(s(:,2),[]," << N << ");\n";
+
+
+    std::cout << "contour(X,Y,Z,100)\n";
+    std::cout << "xlabel('a')\n";
+    std::cout << "ylabel('c')\n";
+    std::cout << "hold on\n";
+    std::cout << "plot(" << n1 << "(:,1)," << n1 << "(:,3),'k')\n";
+    std::cout << "plot(" << n2 << "(:,1)," << n2 << "(:,3),'k')\n";
+    std::cout << "plot(" << a << "," << c << ",'k*')\n";
+    std::cout << "axis equal    \n";
 
     return 0;
 }
