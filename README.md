@@ -20,5 +20,5 @@ and a close-up for the starting point at (1,1):
 
 ![nearest](nearest.png).
 
-I do not known if the minimizer fails because it has some bugs or for some different causes, anyway an important lesson is: **when you need to minimize a non convex function, with a simple gradient descent algorithm, the initial estimate for the variable is of paramount importance**.
+I do not known if the minimizer fails because it has some bugs or for some different reasons, anyway an important lesson is: **when you need to minimize a non convex function, with a simple gradient descent algorithm, the initial estimate for the variables is of paramount importance**.
 
