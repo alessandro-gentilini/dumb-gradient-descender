@@ -78,8 +78,8 @@ std::vector<double> dumb_gradient_descent(const std::vector<double>& initial_est
             lambda *= .5;
             decreasing = false;
         }
-        //if ( euclidean_distance(theta_new, theta_old) < epsilon ) {
-        if ( magnitude(g) < epsilon ) {
+        if ( euclidean_distance(theta_new, theta_old) < epsilon ) {
+        // if ( magnitude(g) < epsilon ) {
             stop = true;
         }
         if ( decreasing ) {
